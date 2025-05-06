@@ -1,22 +1,21 @@
 #!/bin/bash
 
-# Exit immediately on error
 set -e
 
 echo "🔄 Initializing and updating submodules..."
 git submodule update --init --recursive
 
-echo "📦 Reading submodule paths from .gitmodules..."
+echo "📦 Reading submodule paths and branches from .gitmodules..."
 
-# Extract submodule paths from .gitmodules
-SUBMODULE_PATHS=$(grep path .gitmodules | awk -F' = ' '{ print $2 }')
-
-# Track root directory
 ROOT_DIR=$(pwd)
 
-for path in $SUBMODULE_PATHS; do
+# Read submodule paths and corresponding branches (default to 'main' if not specified)
+grep '\[submodule' .gitmodules | sed 's/.*"\(.*\)"/\1/' | while read -r name; do
+    path=$(git config -f .gitmodules --get submodule."$name".path)
+    branch=$(git config -f .gitmodules --get submodule."$name".branch || echo "main")
+
     echo "--------------------------------------------"
-    echo "📂 Processing submodule: $path"
+    echo "📂 Processing submodule: $path (branch: $branch)"
 
     if [ ! -d "$path" ]; then
         echo "❌ Directory $path does not exist. Skipping."
@@ -25,23 +24,20 @@ for path in $SUBMODULE_PATHS; do
 
     cd "$path"
 
-    # # Check and switch to 'main' branch if it exists
-    # if git show-ref --verify --quiet refs/heads/main || git ls-remote --exit-code --heads origin main >/dev/null 2>&1; then
-    #     echo "✅ Switching to 'main' branch in $path"
-    #     git fetch origin main
-    #     git checkout main
-    #     git pull origin main
-    # else
-    #     echo "⚠️ No 'main' branch found in $path — skipping checkout."
-    # fi
+    if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+        echo "✅ Switching to '$branch' branch in $path"
+        git fetch origin "$branch"
+        git checkout "$branch"
+        git pull origin "$branch"
+    else
+        echo "⚠️ Branch '$branch' not found in $path — skipping checkout."
+    fi
 
-    # Collect dependencies
+    # Collect and install dependencies in root
     if [ -f package.json ]; then
         echo "📦 Extracting dependencies from $path/package.json"
-
         MODULE_DEPS=$(jq -r '.dependencies | to_entries[] | "\(.key)@\(.value | ltrimstr("^"))"' package.json)
 
-        # Move back to root project and install the deps
         cd "$ROOT_DIR"
         if [ ! -z "$MODULE_DEPS" ]; then
             echo "📦 Installing submodule dependencies into root project: $MODULE_DEPS"
@@ -55,4 +51,4 @@ for path in $SUBMODULE_PATHS; do
     fi
 done
 
-echo "✅ All submodule dependencies installed in root project."
+echo "✅ All submodules checked out to specified branches and dependencies installed."
