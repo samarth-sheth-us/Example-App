@@ -8,7 +8,8 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "postinstall": "chmod +x src/scripts/setup.sh && src/scripts/setup.sh"
+    "updateSubModule": "chmod +x src/scripts/updateSubModules.sh && src/scripts/updateSubModules.sh",
+    "postinstall": "npm run updateSubModule"
   },
   "dependencies": {
     "react": "19.0.0",

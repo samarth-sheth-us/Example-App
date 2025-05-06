@@ -1,6 +1,8 @@
 [submodule "src/modules"]
-	path = src/modules
-	url = git@github.com:samarth-sheth-us/example-submodule.git
+    path = src/modules
+    url = git@github.com:samarth-sheth-us/example-submodule.git
+    branch = samarth_dev
 [submodule "example-2-submodule"]
-	path = example-2-submodule
-	url = git@github.com:samarth-sheth-us/example-2-submodule.git
+    path = example-2-submodule
+    url = git@github.com:samarth-sheth-us/example-2-submodule.git
+    branch = samarth_dev

@@ -25,15 +25,15 @@ for path in $SUBMODULE_PATHS; do
 
     cd "$path"
 
-    # Check and switch to 'main' branch if it exists
-    if git show-ref --verify --quiet refs/heads/main || git ls-remote --exit-code --heads origin main >/dev/null 2>&1; then
-        echo "✅ Switching to 'main' branch in $path"
-        git fetch origin main
-        git checkout main
-        git pull origin main
-    else
-        echo "⚠️ No 'main' branch found in $path — skipping checkout."
-    fi
+    # # Check and switch to 'main' branch if it exists
+    # if git show-ref --verify --quiet refs/heads/main || git ls-remote --exit-code --heads origin main >/dev/null 2>&1; then
+    #     echo "✅ Switching to 'main' branch in $path"
+    #     git fetch origin main
+    #     git checkout main
+    #     git pull origin main
+    # else
+    #     echo "⚠️ No 'main' branch found in $path — skipping checkout."
+    # fi
 
     # Collect dependencies
     if [ -f package.json ]; then
